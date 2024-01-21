@@ -1,0 +1,8 @@
+### Search for the price of a product whose date is in the range
+< {%
+    request.variables.set("brandId", "1")
+    request.variables.set("productId", "35455")
+    request.variables.set("date", "2020-06-14T15:00:01")
+%}
+GET {{host}}/api/v1/prices/brand/{{brandId}}/product/{{productId}}?date={{date}}
+
