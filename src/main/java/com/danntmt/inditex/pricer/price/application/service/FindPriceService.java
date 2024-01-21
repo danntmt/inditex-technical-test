@@ -19,11 +19,12 @@ public class FindPriceService implements FindPriceUseCase {
     @Override
     public Price find(PriceQueryRequest request) throws PriceNotFoundException {
         return findPricePort.find(request)
-                .orElseThrow(() -> new PriceNotFoundException(String.format(
-                        "No price found for brand ID %s, product ID %s, and date %s. "
-                                .concat("Please ensure that the provided brand ID and product ID are valid, ")
-                                .concat("and the specified date falls within the valid range of prices."),
-                        request.getBrandId(), request.getProductId(), request.getDate()))
+                .orElseThrow(() -> new PriceNotFoundException(
+                                String.format(
+                                        "No price found for brand ID %s, product ID %s, and date %s.",
+                                        request.getBrandId(), request.getProductId(), request.getDate()
+                                )
+                        )
                 );
     }
 
