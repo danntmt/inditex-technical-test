@@ -65,6 +65,12 @@ Tests have been developed to validate the following requests to the service:
 
 The application will be available at http://localhost:8089. (If you want to change the port, you must do so in the application.yml, in the server section.port)
 
+#### Compile
+
+```bash
+./mvnw clean compile
+```
+
 #### Building and Packaging
 To build and package the application, use:
 
@@ -75,3 +81,15 @@ This will generate a JAR file in the target directory.
 
 ###### Note: Make sure you have Java 17 and Maven installed on your system before running 
 
+## Dockerization
+
+You can build an image with the following command:
+
+```bash
+docker build -t inditex-pricer -f docker/Dockerfile .
+```
+and run it by running the following command:
+
+```bash
+docker run  -p 8009:8009 inditex-pricer
+```
