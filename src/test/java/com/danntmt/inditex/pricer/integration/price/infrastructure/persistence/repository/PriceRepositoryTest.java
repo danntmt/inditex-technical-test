@@ -19,7 +19,7 @@ class PriceRepositoryTest {
     PriceRepository priceRepository;
 
     @Nested
-    public class FindByBrandIdAndProductIdAndDate {
+    class FindByBrandIdAndProductIdAndDate {
 
         @Test
         void whenThereIsMoreThanOneResultForADate_shouldReturnTheOneWithTheHighestPriority() {

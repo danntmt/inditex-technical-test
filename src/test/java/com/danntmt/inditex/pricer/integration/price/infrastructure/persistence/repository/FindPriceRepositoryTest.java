@@ -20,7 +20,7 @@ class FindPriceRepositoryTest {
     FindPriceRepository findPriceRepository;
 
     @Nested
-    public class Find {
+    class Find {
 
         @Test
         void whenThereIsMoreThanOneResultForADate_shouldReturnTheOneWithTheHighestPriority() {
