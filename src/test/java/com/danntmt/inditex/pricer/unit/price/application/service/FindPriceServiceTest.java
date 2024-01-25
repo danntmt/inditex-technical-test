@@ -33,7 +33,7 @@ class FindPriceServiceTest {
     }
 
     @Nested
-    public class Find {
+    class Find {
 
         @Test
         void whenNoPriceHasBeenFoundForTheRequestMade_shouldThrowAnException() {

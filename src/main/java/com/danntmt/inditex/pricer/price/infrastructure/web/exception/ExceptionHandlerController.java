@@ -16,22 +16,26 @@ public class ExceptionHandlerController {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleMissingParams(MissingServletRequestParameterException ex) {
-        log.error("Error processing request", ex);
+        this.logError(ex);
         return ErrorDTO.from(HttpStatus.BAD_REQUEST.value(), String.format("Missing parameter with name: %s of type: %s", ex.getParameterName(), ex.getParameterType()));
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorDTO handleException(Exception ex) {
-        log.error("Error processing request", ex);
+        this.logError(ex);
         return ErrorDTO.from(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
 
     @ExceptionHandler(PriceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handlePriceNotFoundException(PriceNotFoundException ex) {
-        log.error("Error processing request", ex);
+        this.logError(ex);
         return ErrorDTO.from(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    private void logError(Throwable throwable) {
+        log.error("Error processing request", throwable);
     }
 
 }
