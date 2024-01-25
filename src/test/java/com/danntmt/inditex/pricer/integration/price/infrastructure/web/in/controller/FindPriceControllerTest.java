@@ -1,51 +1,50 @@
 package com.danntmt.inditex.pricer.integration.price.infrastructure.web.in.controller;
 
 import com.danntmt.inditex.pricer.price.infrastructure.web.in.dto.PriceResponseDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 
-import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class FindPriceControllerTest {
 
-    @LocalServerPort
-    private int port;
+    private static final String URI = "/api/v1/prices/brand/{brandId}/product/{productId}";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName(value = "Undated request")
-    void whenMakingAnUndatedRequest_shouldReturnABadRequest() {
-        given()
-                .port(port)
-                .pathParams("brandId", 1L)
-                .pathParams("productId", 35455L)
-                .get("/api/v1/prices/brand/{brandId}/product/{productId}")
-                .then()
-                .statusCode(400);
+    void whenMakingAnUndatedRequest_shouldReturnABadRequest() throws Exception {
+        mockMvc.perform(get(URI, 1L, 35455L))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName(value = "Search for the price of a product with a product id that does not exist")
-    void whenThereIsNoPriceForTheSearchConditions_shouldReturnNotFound() {
-        given()
-                .port(port)
-                .pathParams("brandId", 1L)
-                .pathParams("productId", 9999L)
-                .queryParam("date", LocalDateTime.now().toString())
-                .get("/api/v1/prices/brand/{brandId}/product/{productId}")
-                .then()
-                .statusCode(404);
+    void whenThereIsNoPriceForTheSearchConditions_shouldReturnNotFound() throws Exception {
+        mockMvc.perform(get(URI, 1L, 9999L).param("date", LocalDateTime.now().toString()))
+                .andExpect(status().isNotFound());
     }
 
     @DisplayName(value = "Find the price of a product by a specific date")
@@ -64,18 +63,14 @@ class FindPriceControllerTest {
             double expectedPrice,
             long expectedPriority,
             long expectedBrandId
-    ) {
+    ) throws Exception {
         LocalDateTime date = LocalDateTime.parse(dateString);
-        PriceResponseDTO priceResponseDTO = given()
-                .port(port)
-                .pathParams("brandId", 1L)
-                .pathParams("productId", 35455L)
-                .queryParam("date", date.toString())
-                .get("/api/v1/prices/brand/{brandId}/product/{productId}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(PriceResponseDTO.class);
+        MvcResult result = mockMvc.perform(get(URI, 1L, 35455L).param("date", date.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        PriceResponseDTO priceResponseDTO = objectMapper.readValue(content, PriceResponseDTO.class);
 
         assertNotNull(priceResponseDTO);
         assertEquals(expectedPrice, priceResponseDTO.getPrice().doubleValue());
@@ -84,5 +79,4 @@ class FindPriceControllerTest {
         assertEquals(expectedPriority, priceResponseDTO.getPriority());
         assertTrue(date.isAfter(priceResponseDTO.getStartDate()) && date.isBefore(priceResponseDTO.getEndDate()));
     }
-
 }
